@@ -1,0 +1,165 @@
+---
+title: "Project Group 10"
+author: "G Ramos"
+date: "2024-11-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#import libraries
+library(dplyr)
+library(ggplot2)
+library(factoextra)
+library(cluster)
+```
+
+```{r}
+wine <- read.csv('data_10.csv', header = TRUE)
+head(wine)
+```
+
+```{r}
+wine_variables <- wine[,2:14] #delete column constant column 'Region'
+head(wine_variables)
+```
+
+```{r}
+#standardization 
+wine_scaled <- scale(wine_variables)
+wine_scaled
+
+```
+
+```{r}
+#get to know the variables and dimensions
+str(wine_scaled)
+dim(wine_scaled)
+
+wine_scaled <- as.data.frame(wine_scaled)
+
+```
+
+```{r}
+#summary analysis 
+summary(wine_scaled)
+```
+
+```{r}
+#getting the sigma (sd) for each one of the variables
+wine_scaled%>%summarise_if(is.numeric, sd)
+
+#needs to be fixed
+```
+
+```{r}
+#find the correlation between the variables 
+wines_correl <- cor(wine_scaled)
+wines_correl
+```
+
+**PCA!!!**
+
+```{r}
+#eigen decomposition
+wine_eigen <- eigen(wines_correl)
+wine_eigen
+```
+
+```{r}
+#retain principal components above 1
+pca_wine <- princomp(wine_scaled, cor = TRUE)
+print(summary(pca_wine), loadings = TRUE)
+```
+
+```{r}
+var_wine_explained <- pca_wine$sdev^2/sum(pca_wine$sdev^2)
+var_wine_explained
+```
+
+```{r}
+qplot(c(1:13), var_wine_explained)+geom_line() + xlab('PCA') + ylab('variance explained')
+#scree plot/ suggests an elbow around the third or fourth PC
+```
+
+```{r}
+component_matrix <- cor(wine_variables, pca_wine$scores)
+component_matrix
+```
+
+```{r}
+sqrt(wine_eigen$values[1]/13)
+sqrt(wine_eigen$values[2]/13)
+sqrt(wine_eigen$values[3]/13)
+
+```
+
+**Still needs to be finished Need to find the importance of each principle component and make a BIplot!!!!!**
+
+
+**Beginning of HC**
+
+```{r}
+#measure euclidean distance 
+eucl_var_sclaed <- t(wine_scaled)
+eucl_wine_scaled <- dist(eucl_var_sclaed, method ='euclidean')
+eucl_wine_scaled
+```
+**Needs to be fixed!! both matrix and heatmap** 
+```{r}
+fviz_dist(eucl_wine_scaled, gradient = list(low="#00AFBB", mid="white", high="#FC4E07"))
+```
+
+```{r}
+#maybe we can delete, just a summary
+hclust_result <- hclust(distance_matrix, method='single')
+hclust_result
+```
+
+```{r}
+#hierarchical clustering
+hc_single <- agnes(eucl_wine_scaled, diss = FALSE, metric = 'euclidean', method = 'single')
+
+```
+
+```{r}
+hc_single$merge
+hc_single$order
+```
+
+```{r}
+hc_single$ac
+
+```
+
+```{r}
+dendogram_single <- as.dendrogram(hc_single)
+plot(dendogram_single, main ='single method')
+```
+
+```{r}
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
